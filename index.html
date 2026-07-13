@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>TRIG TOWER</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,"Noto Sans KR",sans-serif;background:#173a30}button{font:inherit}
+#game{position:relative;width:100%;height:100%;background:#6dc5e8;overflow:hidden}.hidden{display:none!important}
+.top{position:absolute;left:0;right:0;top:0;height:76px;z-index:20;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:9px}
+.hud{background:#fffaf0;border:3px solid #244f3e;border-radius:16px;padding:7px 10px;box-shadow:0 5px 0 #153a2d}.hud small{display:block;font-weight:900;color:#718178;font-size:10px}.hud b{font-size:20px;font-weight:1000;color:#1e4033}
+.screen{position:absolute;inset:0}
+#quiz{display:flex;align-items:center;justify-content:center;padding:88px 18px 18px;background:linear-gradient(145deg,#86d7a4,#4b9f78)}
+.card{width:min(720px,96%);background:#fffaf0;border:5px solid #244f3e;border-radius:28px;box-shadow:0 13px 0 rgba(17,52,39,.45);padding:24px;text-align:center}
+.logo{font-size:clamp(45px,8vw,78px);font-weight:1000;color:#193f32;letter-spacing:-3px}.logo span{color:#ff963d}
+.timer{font-size:26px;font-weight:1000;color:#d65d32;margin:10px 0}.problem{min-height:105px;border:4px dashed #b09e69;background:#fff3c6;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:clamp(34px,5vw,56px);font-weight:1000}
+.answers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.ans{height:64px;border:3px solid #537160;border-radius:15px;background:white;font-size:23px;font-weight:1000;box-shadow:0 5px 0 #b5c7b6}.ans:active{transform:translateY(3px);box-shadow:0 2px 0 #b5c7b6}.ans.ok{background:#c6f1d1}.ans.no{background:#ffd0cf}
+.status{height:31px;margin-top:10px;font-weight:1000;color:#6b6048}.bank{background:#173f32;color:white;border-radius:17px;padding:10px;margin-top:7px;font-weight:900}.bank b{display:block;color:#ffe06b;font-size:33px}
+#tower{background:#6ec8ef}canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}.runinfo{position:absolute;left:50%;top:84px;transform:translateX(-50%);z-index:15;background:rgba(23,62,50,.86);color:white;border:3px solid white;border-radius:999px;padding:7px 15px;font-weight:1000;white-space:nowrap}
+.itemToast{position:absolute;left:50%;top:145px;transform:translate(-50%,-10px);z-index:19;background:rgba(22,54,44,.92);color:#fff7c7;border:3px solid white;border-radius:999px;padding:8px 16px;font-weight:1000;opacity:0;transition:.2s;pointer-events:none;white-space:nowrap}
+.itemToast.show{opacity:1;transform:translate(-50%,0)}
+.rushState{position:absolute;right:18px;top:145px;z-index:18;background:rgba(66,111,187,.9);color:white;border:3px solid #dff3ff;border-radius:15px;padding:8px 12px;font-weight:1000;display:none}
+.rushState.show{display:block}
+.joy{position:absolute;left:18px;bottom:20px;width:138px;height:138px;border-radius:50%;background:rgba(20,52,43,.3);border:3px solid rgba(255,255,255,.6);z-index:16;touch-action:none}.knob{position:absolute;left:50%;top:50%;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.84);border:4px solid #356b56;transform:translate(-50%,-50%)}
+.jump{position:absolute;right:22px;bottom:30px;width:104px;height:104px;border-radius:50%;z-index:16;background:#ff6b86;color:white;border:4px solid #8f3b50;box-shadow:0 7px 0 #6c2f3e;font-size:22px;font-weight:1000;touch-action:manipulation}
+.overlay{position:absolute;inset:0;z-index:50;background:rgba(8,29,22,.8);display:flex;align-items:center;justify-content:center;padding:18px}.modal{width:min(640px,95%);background:#fffaf0;border:5px solid #284f40;border-radius:28px;box-shadow:0 14px 0 rgba(5,24,18,.5);padding:25px;text-align:center}.rules{margin:18px 0;background:#f5edc8;border:3px solid #978a5b;border-radius:18px;padding:15px;text-align:left;line-height:1.7;font-weight:850}.startName{margin-top:14px}.startName input{width:100%;height:52px;border:3px solid #287253;border-radius:14px;padding:0 14px;font-size:20px;font-weight:1000;text-align:center}.startWarn{height:24px;margin-top:6px;color:#d3543f;font-weight:1000}.rules strong{color:#d95f36}.btn{width:100%;height:64px;border:3px solid #287253;border-radius:17px;background:#53bd91;color:white;font-size:23px;font-weight:1000;box-shadow:0 6px 0 #235e47}.result{font-size:58px;font-weight:1000;color:#ed7b3d}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:17px 0}.stat{background:#f5edc8;border:3px solid #978a5b;border-radius:14px;padding:10px}.stat small{display:block;font-weight:900;color:#766e56}.stat b{font-size:22px}
+@media(max-width:700px){.top{height:66px;padding:6px;gap:5px}.hud{padding:4px 6px;border-width:2px}.hud b{font-size:15px}.hud small{font-size:8px}#quiz{padding:74px 9px 10px}.card{padding:14px 10px}.logo{font-size:44px}.timer{font-size:21px}.problem{min-height:74px;font-size:32px}.answers{gap:6px;margin-top:9px}.ans{height:50px;font-size:18px}.status{font-size:13px;height:26px}.bank{padding:6px}.bank b{font-size:25px}.runinfo{top:72px;font-size:13px}.joy{width:120px;height:120px;left:12px;bottom:14px}.knob{width:52px;height:52px}.jump{width:92px;height:92px;right:16px;bottom:22px}}
+
+.rankBox{margin-top:16px;background:#f0f7ef;border:3px solid #4d7d63;border-radius:16px;padding:12px;text-align:left}
+.rankTitle{font-weight:1000;color:#244f3e;margin-bottom:8px;text-align:center}
+.nameRow{display:flex;gap:8px;margin:10px 0}
+.nameRow input{flex:1;height:44px;border:3px solid #4d7d63;border-radius:12px;padding:0 12px;font-weight:900;font-size:16px}
+.nameRow button{width:112px;border:3px solid #287253;border-radius:12px;background:#53bd91;color:white;font-weight:1000;cursor:pointer}
+.rankList{max-height:210px;overflow:auto}
+.rankItem{display:grid;grid-template-columns:34px 1fr 70px;gap:8px;align-items:center;padding:7px 8px;border-radius:10px;background:#fffdf2;margin-top:5px;font-weight:900}
+.rankMsg{text-align:center;font-size:13px;font-weight:900;color:#69796f;margin-top:6px}
+.smallBtn{height:40px;border:3px solid #5c4c9f;border-radius:12px;background:#efeaff;color:#4e3e8d;font-weight:1000;cursor:pointer;margin-top:8px;width:100%}
+
+</style></head>
+<body>
+<div id="game">
+<div class="top">
+<div class="hud"><small>최고 기록</small><b id="best">0m</b></div>
+<div class="hud"><small id="midLabel">획득 도전시간</small><b id="mid">0.0초</b></div>
+<div class="hud"><small>현재 콤보</small><b id="combo">0 COMBO</b></div>
+</div>
+
+<section id="quiz" class="screen">
+<div class="card">
+<div class="logo">TRIG <span>TOWER</span></div>
+<div class="timer">문제 풀이 종료까지 <span id="qtime">30.0</span>초</div>
+<div class="problem" id="problem"></div>
+<div class="answers" id="answers"></div>
+<div class="status" id="status">정답 +2초 · 오답은 문제풀이 시간 -2초</div>
+<div class="bank">현재 획득한 도전시간<b id="bank">0.0초</b></div>
+<div style="margin-top:7px;font-weight:900">정답 <span id="correct">0</span> · 최고 콤보 <span id="bestCombo">0</span></div>
+</div></section>
+
+<section id="tower" class="screen hidden">
+<canvas id="c"></canvas>
+<div class="runinfo">📏 현재 높이 <span id="runHeight">0m</span></div>
+<div class="itemToast" id="itemToast">아이템 획득!</div>
+<div class="rushState" id="rushState">🚀 하늘 질주 <span id="rushTime">5.0</span>초</div>
+<div class="joy" id="joy"><div class="knob" id="knob"></div></div>
+<button class="jump" id="jump">JUMP</button>
+</section>
+
+<div class="overlay" id="start">
+<div class="modal"><div class="logo">TRIG <span>TOWER</span></div>
+<div class="rules">① <strong>30초 동안</strong> 삼각비 문제를 풉니다.<br>② 정답마다 <strong>도전시간 +2초</strong>, 콤보 보너스로 시간이 더 늘어납니다. 오답은 <strong>문제풀이 시간 -2초</strong>입니다.<br>③ 얻은 시간 동안 세로형 인내의 숲을 올라갑니다. 모든 발판은 점프로 도달 가능하게 생성됩니다.<br>④ 떨어지면 최근 체크포인트에서 다시 시작합니다.<br>⑤ 점수는 <strong>이번 도전 중 최고 기록(m)</strong>입니다.</div>
+<div class="startName"><input id="startNick" maxlength="10" placeholder="닉네임 입력 후 시작" autocomplete="off"><div class="startWarn" id="startWarn"></div></div><button class="btn" id="startBtn">삼각비 충전 시작</button></div></div>
+
+<div class="overlay hidden" id="result">
+<div class="modal"><h1>⏱️ 도전 종료</h1><div class="result" id="resultM">0m</div><div id="record">최고 기록 0m</div>
+<div class="stats"><div class="stat"><small>정답</small><b id="rCorrect">0개</b></div><div class="stat"><small>최고 콤보</small><b id="rCombo">0</b></div><div class="stat"><small>획득 시간</small><b id="rTime">0초</b></div></div>
+<div class="rankBox">
+<div class="rankTitle">🏆 TOP 10 랭킹</div>
+<div class="nameRow"><input id="nick" maxlength="10" placeholder="닉네임" autocomplete="off" readonly></div>
+<div class="rankMsg" id="rankMsg">결과가 나오면 자동 저장되고, 닉네임당 최고 기록 1개만 남습니다.</div>
+<div class="rankList" id="rankList"></div>
+<button class="smallBtn" id="refreshRank">랭킹 새로고침</button>
+</div>
+<button class="btn" id="retry">다시 시간 모으기</button></div></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script>
+(()=>{"use strict";
+const $=id=>document.getElementById(id),E={best:$("best"),mid:$("mid"),midLabel:$("midLabel"),combo:$("combo"),quiz:$("quiz"),tower:$("tower"),qtime:$("qtime"),problem:$("problem"),answers:$("answers"),status:$("status"),bank:$("bank"),correct:$("correct"),bestCombo:$("bestCombo"),c:$("c"),runHeight:$("runHeight"),itemToast:$("itemToast"),rushState:$("rushState"),rushTime:$("rushTime"),joy:$("joy"),knob:$("knob"),jump:$("jump"),start:$("start"),startBtn:$("startBtn"),startNick:$("startNick"),startWarn:$("startWarn"),result:$("result"),resultM:$("resultM"),record:$("record"),rCorrect:$("rCorrect"),rCombo:$("rCombo"),rTime:$("rTime"),retry:$("retry"),nick:$("nick"),refreshRank:$("refreshRank"),rankMsg:$("rankMsg"),rankList:$("rankList")};
+
+const firebaseConfig={
+  apiKey:"AIzaSyBJH4uX1bj0PaEUtMDuYSyJ2GDt6f7Gz6o",
+  authDomain:"game-bb5b0.firebaseapp.com",
+  projectId:"game-bb5b0",
+  storageBucket:"game-bb5b0.firebasestorage.app",
+  messagingSenderId:"47848761419",
+  appId:"1:47848761419:web:62f872cc443d49411a85ce",
+  measurementId:"G-SJBS9DDEPL"
+};
+let db=null;
+try{
+  firebase.initializeApp(firebaseConfig);
+  try{firebase.analytics()}catch(e){}
+  db=firebase.firestore();
+}catch(e){console.warn("Firebase init failed",e)}
+const RANK_COLLECTION="trig_tower_top10";
+const Q=[["sin 30°","1/2"],["sin 45°","√2/2"],["sin 60°","√3/2"],["cos 30°","√3/2"],["cos 45°","√2/2"],["cos 60°","1/2"],["tan 30°","√3/3"],["tan 45°","1"],["tan 60°","√3"]],V=["1/2","√2/2","√3/2","√3/3","1","√3"];
+const ctx=E.c.getContext("2d");let W=0,H=0,dpr=1,phase="idle",raf=0,last=0;
+let S={qleft:30,bank:0,correct:0,combo:0,bestCombo:0,current:null,locked:false,playerName:"",autoSaved:false,runLeft:0,earned:0,currentHeight:0,finalScore:0,bestEver:0,cam:0,p:null,plats:[],winds:[],items:[],rushLeft:0,itemToastTimer:0};
+try{S.bestEver=Number(localStorage.getItem("trigTowerBest")||0)}catch(e){}
+function save(){try{localStorage.setItem("trigTowerBest",S.bestEver)}catch(e){}}
+function resize(){dpr=Math.max(1,Math.min(2,devicePixelRatio||1));W=innerWidth;H=innerHeight;E.c.width=W*dpr;E.c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener("resize",resize);resize();
+function sh(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function hud(){E.best.textContent=Math.floor(S.bestEver)+"m";E.combo.textContent=S.combo+" COMBO";if(phase==="quiz"){E.midLabel.textContent="획득 도전시간";E.mid.textContent=S.bank.toFixed(1)+"초"}else{E.midLabel.textContent="남은 도전시간";E.mid.textContent=Math.max(0,S.runLeft).toFixed(1)+"초"}}
+function nextQ(){S.current=Q[Math.floor(Math.random()*Q.length)];S.locked=false;E.problem.textContent=S.current[0]+" = ?";E.answers.innerHTML="";let choices=sh([S.current[1],...sh(V.filter(x=>x!==S.current[1])).slice(0,5)]);choices.forEach(x=>{let b=document.createElement("button");b.className="ans";b.textContent=x;b.onclick=()=>ans(x,b);E.answers.appendChild(b)})}
+function ans(x,b){if(phase!=="quiz"||S.locked)return;if(x===S.current[1]){S.locked=true;S.correct++;S.combo++;S.bestCombo=Math.max(S.bestCombo,S.combo);let g=2,t="";if(S.combo%10===0){g+=5;t=" · 10콤보 +5초!"}else if(S.combo%5===0){g+=3;t=" · 5콤보 +3초!"}else if(S.combo%3===0){g+=2;t=" · 3콤보 +2초!"}S.bank+=g;b.classList.add("ok");E.status.textContent="정답! +"+g+"초"+t;E.correct.textContent=S.correct;E.bestCombo.textContent=S.bestCombo;E.bank.textContent=S.bank.toFixed(1)+"초";hud();setTimeout(nextQ,120)}else{S.combo=0;S.qleft=Math.max(0,S.qleft-2);b.classList.add("no");E.status.textContent="오답! 콤보가 끊기고 문제풀이 시간 -2초";E.qtime.textContent=Math.max(0,S.qleft).toFixed(1);hud();setTimeout(()=>b.classList.remove("no"),220);if(S.qleft<=0){setTimeout(endQuiz,120)}}}
+function startQuiz(){
+if(!E.start.classList.contains("hidden")){
+  const name=safeName(E.startNick.value);
+  if(!name||name==="익명"){
+    E.startWarn.textContent="닉네임을 입력해야 시작할 수 있습니다.";
+    E.startNick.focus();
+    return;
+  }
+  S.playerName=name;
+  E.nick.value=name;
+}
+cancelAnimationFrame(raf);phase="quiz";S.qleft=30;S.bank=0;S.correct=0;S.combo=0;S.bestCombo=0;S.autoSaved=false;E.start.classList.add("hidden");E.result.classList.add("hidden");E.tower.classList.add("hidden");E.quiz.classList.remove("hidden");E.correct.textContent="0";E.bestCombo.textContent="0";E.bank.textContent="0.0초";E.status.textContent="정답 +2초 · 오답은 문제풀이 시간 -2초";nextQ();hud();last=performance.now();raf=requestAnimationFrame(loop)}
+function endQuiz(){if(phase!=="quiz")return;phase="transition";S.earned=S.bank;S.runLeft=Math.max(1,S.bank);setTimeout(startTower,350)}
+
+function windOverlaps(nw){
+  return S.winds.some(w=>{
+    const xOverlap=nw.x < w.x+w.w && nw.x+nw.w > w.x;
+    const yOverlap=nw.y < w.y+w.h+70 && nw.y+nw.h+70 > w.y;
+    return xOverlap && yOverlap;
+  });
+}
+function tryAddWind(x,y,z){
+  const nw={x:Math.max(0,x-70),y:y-120,w:Math.min(W,240),h:150,d:Math.random()<.5?-1:1};
+  if(!windOverlaps(nw))S.winds.push(nw);
+}
+
+function gen(){S.plats=[];S.winds=[];S.items=[];S.plats.push({x:W/2-130,y:0,w:260,h:20,t:"normal",vx:0,bx:W/2-130,r:0,on:true,timer:0});let y=-105,px=W/2-80;for(let i=1;i<220;i++){let m=Math.max(0,Math.floor(-y/8)),z=Math.floor(m/100),w=Math.max(58,72+Math.random()*58-z*1.8),g=Math.min(180,110+z*7),x=Math.max(20,Math.min(W-w-20,px+(Math.random()*2-1)*g)),t="normal",r=Math.random();
+    const moveChance=Math.min(.36,.20+z*.025),vanishChance=Math.min(.30,.10+z*.025);
+    if(r<moveChance)t="move";else if(r<moveChance+vanishChance)t="vanish";S.plats.push({x,y,w,h:18,t,vx:t==="move"?(Math.random()<.5?-1:1)*(70+Math.random()*65):0,bx:x,r:70+Math.random()*75,on:true,timer:0,spikes:Math.random()<Math.min(.48,.10+z*.045)});if(Math.random()<Math.min(.48,.18+z*.05)&&i>3)tryAddWind(x,y,z);
+    if(i>4&&Math.random()<.085){
+      const type=Math.random()<.52?"rush":"time";
+      S.items.push({x:x+w/2-18,y:y-54,w:36,h:36,type,collected:false})
+    }
+    px=x;y-=68+Math.random()*30}}
+function startTower(){phase="tower";E.quiz.classList.add("hidden");E.tower.classList.remove("hidden");gen();S.p={x:W/2-14,y:-48,w:28,h:38,vx:0,vy:0,ground:false,stun:0};S.cam=H*.68;S.currentHeight=0;S.combo=0;S.rushLeft=0;E.rushState.classList.remove("show");hud();last=performance.now();raf=requestAnimationFrame(loop)}
+const K={l:false,r:false,j:false};addEventListener("keydown",e=>{if(e.code==="ArrowLeft"||e.code==="KeyA")K.l=true;if(e.code==="ArrowRight"||e.code==="KeyD")K.r=true;if(["Space","ArrowUp","KeyW"].includes(e.code)){K.j=true;e.preventDefault()}if(phase==="quiz"&&/^[1-6]$/.test(e.key)){let b=E.answers.children[+e.key-1];if(b)b.click()}});addEventListener("keyup",e=>{if(e.code==="ArrowLeft"||e.code==="KeyA")K.l=false;if(e.code==="ArrowRight"||e.code==="KeyD")K.r=false;if(["Space","ArrowUp","KeyW"].includes(e.code))K.j=false});
+let jp=null;function jm(e){if(jp!==e.pointerId)return;let r=E.joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=r.width*.32,len=Math.hypot(dx,dy)||1,k=Math.min(1,max/len),x=dx*k,y=dy*k;E.knob.style.transform=`translate(calc(-50% + ${x}px),calc(-50% + ${y}px))`;K.l=x<-14;K.r=x>14}E.joy.addEventListener("pointerdown",e=>{jp=e.pointerId;E.joy.setPointerCapture(e.pointerId);jm(e)});E.joy.addEventListener("pointermove",jm);function je(e){if(jp!==e.pointerId)return;jp=null;K.l=K.r=false;E.knob.style.transform="translate(-50%,-50%)"}E.joy.addEventListener("pointerup",je);E.joy.addEventListener("pointercancel",je);E.jump.addEventListener("pointerdown",()=>K.j=true);["pointerup","pointerleave","pointercancel"].forEach(x=>E.jump.addEventListener(x,()=>K.j=false));
+function meter(y){return Math.floor(-y/8)}function rect(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+
+function showItemToast(text){
+  clearTimeout(S.itemToastTimer);
+  E.itemToast.textContent=text;
+  E.itemToast.classList.add("show");
+  S.itemToastTimer=setTimeout(()=>E.itemToast.classList.remove("show"),1200)
+}
+function collectItem(it){
+  if(it.collected)return;
+  it.collected=true;
+  if(it.type==="rush"){
+    S.rushLeft=3;
+    E.rushState.classList.add("show");
+    showItemToast("🚀 하늘 질주! 5초간 자동 상승");
+  }else{
+    S.runLeft+=3;
+    showItemToast("⏱️ 도전시간 +3초!");
+  }
+}
+function upd(dt){S.runLeft-=dt;if(S.runLeft<=0){endTower();return}let p=S.p;
+  if(S.rushLeft>0){
+    S.rushLeft-=dt;
+    E.rushTime.textContent=Math.max(0,S.rushLeft).toFixed(1);
+    E.rushState.classList.add("show");
+    p.vy=-250;
+    p.stun=0;
+    if(S.rushLeft<=0)E.rushState.classList.remove("show")
+  }
+  if(p.stun>0)p.stun-=dt;let acc=p.stun>0?190:650,max=p.stun>0?80:220;if(K.l)p.vx-=acc*dt;if(K.r)p.vx+=acc*dt;if(!K.l&&!K.r)p.vx*=Math.pow(.002,dt);p.vx=Math.max(-max,Math.min(max,p.vx));if(S.rushLeft<=0)p.vy+=1120*dt;let was=p.ground;p.ground=false;if(K.j&&was&&p.stun<=0&&S.rushLeft<=0)p.vy=-535;let oy=p.y;p.x+=p.vx*dt;p.x=Math.max(0,Math.min(W-p.w,p.x));p.y+=p.vy*dt;
+for(let q of S.plats){if(q.t==="vanish"&&!q.on&&q.timer<0){q.timer+=dt;if(q.timer>=0){q.on=true;q.timer=0}}if(!q.on)continue;if(q.t==="move"){q.x+=q.vx*dt;if(Math.abs(q.x-q.bx)>q.r)q.vx*=-1}if(q.t==="vanish"&&q.timer>0){q.timer-=dt;if(q.timer<=0){q.on=false;q.timer=-2.2}}let pb=oy+p.h,nb=p.y+p.h;if(p.vy>=0&&pb<=q.y+5&&nb>=q.y&&p.x+p.w>q.x&&p.x<q.x+q.w){p.y=q.y-p.h;p.vy=0;p.ground=true;if(q.t==="move")p.x+=q.vx*dt;if(q.spikes){
+        const spikeStart=q.x+q.w*.35, spikeEnd=q.x+q.w*.65, footCenter=p.x+p.w/2;
+        if(footCenter>spikeStart&&footCenter<spikeEnd){
+          p.vy=-260;
+          p.vx+=(footCenter<q.x+q.w/2?-1:1)*150;
+          p.stun=.18;
+        }
+      }
+      if(q.t==="vanish"&&q.timer===0)q.timer=.45;}}
+for(let it of S.items)if(!it.collected&&rect(p,it))collectItem(it);
+for(let w of S.winds)if(rect(p,w)&&S.rushLeft<=0)p.vx+=w.d*520*dt;S.currentHeight=Math.max(0,meter(p.y));S.cam+=(H*.62-(p.y+S.cam))*.08;if(p.y>20){p.y=-48;p.x=W/2-p.w/2;p.vx=0;p.vy=0;p.stun=.7;S.currentHeight=0}hud();E.runHeight.textContent=Math.floor(S.currentHeight)+"m"}
+function draw(){ctx.clearRect(0,0,W,H);let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#72c8ef");g.addColorStop(1,"#d8f2ff");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);let cam=S.cam,z=Math.floor(S.currentHeight/100),P=[["#6fbf74","#467e4d"],["#9d72c9","#66448a"],["#d8eef7","#7eaec5"],["#d9794a","#8d3f2c"],["#d9f2ff","#8ecce9"],["#26265b","#12122f"]][Math.min(z,5)];ctx.fillStyle=P[0];ctx.fillRect(0,H*.72,W,H*.28);
+for(let w of S.winds){let y=w.y+cam;if(y<-170||y>H+50)continue;ctx.fillStyle="rgba(255,255,255,.16)";ctx.fillRect(w.x,y,w.w,w.h);ctx.fillStyle="white";ctx.font="25px sans-serif";for(let i=0;i<3;i++)ctx.fillText(w.d>0?"→":"←",w.x+30+i*60,y+45+i*27)}
+for(let it of S.items){
+  if(it.collected)continue;
+  let iy=it.y+cam;if(iy<-60||iy>H+60)continue;
+  ctx.font="32px sans-serif";
+  ctx.fillText(it.type==="rush"?"🚀":"⏱️",it.x,iy+30)
+}
+for(let q of S.plats){if(!q.on)continue;let y=q.y+cam;if(y<-40||y>H+40)continue;ctx.fillStyle=q.t==="move"?"#4b88b4":q.t==="vanish"?"#9a78b8":"#5c8a52";ctx.fillRect(q.x,y,q.w,q.h);ctx.fillStyle="rgba(255,255,255,.25)";ctx.fillRect(q.x,y,q.w,4);
+if(q.spikes){
+  ctx.fillStyle="#eee5d2";
+  const sx=q.x+q.w*.35, ex=q.x+q.w*.65;
+  for(let x=sx;x<ex-8;x+=14){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+6,y-13);ctx.lineTo(x+12,y);ctx.fill()}
+}}
+let p=S.p,x=p.x,y=p.y+cam;ctx.fillStyle=p.stun>0?"#ff9b9f":"#1f5d48";ctx.fillRect(x,y,p.w,p.h);ctx.fillStyle="#fff2c9";ctx.fillRect(x+6,y+5,16,13);ctx.fillStyle="#18231f";ctx.fillRect(x+9,y+9,3,3);ctx.fillRect(x+17,y+9,3,3);ctx.fillStyle="#f0a84b";ctx.fillRect(x+3,y+21,22,12)}
+
+function safeName(name){return (name||"").trim().replace(/[<>]/g,"").slice(0,10)||"익명"}
+function localTimeString(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`
+}
+async function refreshRank(){
+  if(!db){E.rankMsg.textContent="Firebase 연결을 확인할 수 없습니다.";return}
+  E.rankList.innerHTML="";
+  E.rankMsg.textContent="랭킹 불러오는 중...";
+  try{
+    const snap=await db.collection(RANK_COLLECTION).orderBy("score","desc").limit(10).get();
+    let html="",i=1;
+    snap.forEach(doc=>{
+      const r=doc.data();
+      html+=`<div class="rankItem"><span>${i}</span><span>${r.name||"익명"}</span><span>${Math.floor(r.score||0)}m</span></div>`;
+      i++;
+    });
+    E.rankList.innerHTML=html||"<div class='rankMsg'>아직 저장된 기록이 없습니다.</div>";
+    E.rankMsg.textContent="닉네임당 최고 기록 1개만 저장되고, 전체 TOP 10만 남습니다.";
+  }catch(e){
+    console.error(e);
+    E.rankMsg.textContent="랭킹 불러오기 실패: Firestore 규칙 또는 인터넷 연결을 확인하세요.";
+  }
+}
+async function trimTop10(){
+  const snap=await db.collection(RANK_COLLECTION).orderBy("score","desc").get();
+  const batch=db.batch();
+  let i=0;
+  snap.forEach(doc=>{i++;if(i>10)batch.delete(doc.ref)});
+  await batch.commit();
+}
+async function saveRank(){
+  if(S.autoSaved)return;
+  S.autoSaved=true;
+  if(!db){E.rankMsg.textContent="Firebase 연결을 확인할 수 없습니다.";return}
+  const score=Math.floor(S.finalScore||0);
+  if(score<=0){E.rankMsg.textContent="0m 기록은 저장하지 않습니다.";return}
+  const name=safeName(S.playerName||E.nick.value);
+  E.rankMsg.textContent="기록 자동 저장 중...";
+  try{
+    const existing=await db.collection(RANK_COLLECTION).where("name","==",name).limit(20).get();
+    let bestDoc=null,bestScore=-1,deleteRefs=[];
+    existing.forEach(doc=>{
+      const data=doc.data();
+      const oldScore=Math.floor(data.score||0);
+      if(oldScore>bestScore){
+        if(bestDoc)deleteRefs.push(bestDoc.ref);
+        bestDoc=doc;
+        bestScore=oldScore;
+      }else{
+        deleteRefs.push(doc.ref);
+      }
+    });
+
+    const payload={
+      name,score,
+      correct:S.correct,
+      bestCombo:S.bestCombo,
+      earnedTime:Number(S.earned.toFixed(1)),
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAtText:localTimeString()
+    };
+
+    const batch=db.batch();
+    deleteRefs.forEach(ref=>batch.delete(ref));
+
+    if(bestDoc){
+      if(score>bestScore){
+        batch.set(bestDoc.ref,{...payload,createdAt:bestDoc.data().createdAt||firebase.firestore.FieldValue.serverTimestamp(),createdAtText:bestDoc.data().createdAtText||localTimeString()},{merge:true});
+        E.rankMsg.textContent=`자동 저장 완료! ${name} 최고기록 갱신 ${bestScore}m → ${score}m`;
+      }else{
+        E.rankMsg.textContent=`${name} 기존 최고기록 ${bestScore}m가 더 높아 기록은 갱신하지 않았습니다.`;
+      }
+    }else{
+      const ref=db.collection(RANK_COLLECTION).doc();
+      batch.set(ref,{...payload,createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdAtText:localTimeString()});
+      E.rankMsg.textContent=`자동 저장 완료! ${name} ${score}m`;
+    }
+
+    await batch.commit();
+    await trimTop10();
+    await refreshRank();
+  }catch(e){
+    console.error(e);
+    S.autoSaved=false;
+    E.rankMsg.textContent="자동 저장 실패: Firestore 규칙 또는 인터넷 연결을 확인하세요.";
+  }
+}
+
+function endTower(){phase="result";cancelAnimationFrame(raf);S.finalScore=Math.floor(S.currentHeight);if(S.finalScore>S.bestEver){S.bestEver=S.finalScore;save()}E.resultM.textContent=S.finalScore+"m";E.record.textContent="최고 기록 "+Math.floor(S.bestEver)+"m";E.rCorrect.textContent=S.correct+"개";E.rCombo.textContent=S.bestCombo;E.rTime.textContent=S.earned.toFixed(1)+"초";E.nick.value=S.playerName||"";E.rankMsg.textContent="결과가 자동 저장됩니다.";E.rankList.innerHTML="";E.result.classList.remove("hidden");hud();saveRank()}
+function loop(t){let dt=Math.min(.035,(t-last)/1000||.016);last=t;if(phase==="quiz"){S.qleft-=dt;E.qtime.textContent=Math.max(0,S.qleft).toFixed(1);if(S.qleft<=0){endQuiz();return}}else if(phase==="tower"){upd(dt);if(phase!=="tower")return;draw()}raf=requestAnimationFrame(loop)}
+E.startBtn.onclick=startQuiz;E.startNick.addEventListener("keydown",e=>{if(e.key==="Enter")startQuiz()});E.retry.onclick=startQuiz;E.refreshRank.onclick=refreshRank;hud();
+})();
+</script>
+</body></html>
