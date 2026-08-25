@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>TRIG BET - 삼각비 배팅 게임</title>
+<style>
+:root{
+  --bg:#0c1020; --panel:#151b31; --panel2:#1c2440; --line:#2b3558;
+  --text:#f7f8ff; --muted:#9fa9c7; --good:#5ee6a8; --bad:#ff6b7a;
+  --gold:#ffd166; --blue:#6da8ff; --purple:#a989ff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;background:linear-gradient(160deg,#090d18,#11172b 45%,#0b1021);color:var(--text);min-height:100vh}
+button,input{font:inherit}
+button{cursor:pointer}
+.wrap{max-width:1120px;margin:auto;padding:18px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.logo{font-size:24px;font-weight:900;letter-spacing:.5px}.logo b{color:var(--gold)}
+.badge{background:#202a49;border:1px solid #344169;border-radius:999px;padding:7px 11px;color:#cbd5f7;font-size:13px}
+.card{background:rgba(21,27,49,.96);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 16px 50px rgba(0,0,0,.24)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:760px){.g2,.g5{grid-template-columns:1fr}.wrap{padding:10px}.top{align-items:flex-start;flex-direction:column}}
+h1,h2,h3,p{margin-top:0}
+h2{font-size:20px}
+.muted{color:var(--muted)}
+.center{text-align:center}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.space{justify-content:space-between}
+.btn{border:0;border-radius:14px;padding:12px 16px;font-weight:800;background:#2b365e;color:white}
+.btn.primary{background:linear-gradient(135deg,#547eff,#825cff)}
+.btn.good{background:#1d9b68}.btn.bad{background:#b73e52}.btn.gold{background:#9f7417}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.input{width:100%;background:#0f1528;border:1px solid #344169;border-radius:13px;padding:13px;color:white;outline:none}
+.big{font-size:34px;font-weight:900}
+.stat{background:#10162a;border:1px solid #283254;border-radius:16px;padding:14px}
+.stat .n{font-size:27px;font-weight:900}
+.hidden{display:none!important}
+.choice{width:100%;min-height:64px;background:#1d2745;border:1px solid #34436f;color:white;border-radius:14px;font-size:18px;font-weight:800}
+.choice:hover{transform:translateY(-1px)}
+.choice.correct{background:#176d50}.choice.wrong{background:#7d2b3a}
+.lock{position:absolute;inset:0;background:rgba(5,8,18,.82);display:flex;align-items:center;justify-content:center;border-radius:20px;z-index:4;font-size:28px;font-weight:900}
+.problemBox{position:relative;min-height:355px}
+.timer{font-size:50px;font-weight:950}
+.zones{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+.zone{background:#111831;border:1px solid #33416c;border-radius:18px;padding:14px;text-align:center;min-height:104px;position:relative}
+.zone .letter{font-size:24px;font-weight:950}
+.zone .points{font-size:28px;font-weight:950;color:var(--gold)}
+.zone.sel{outline:3px solid #7d8cff;background:#202a50}
+.zone.open{background:#192540}
+.itemBadge{margin-top:7px;display:inline-block;background:#5b3b11;border:1px solid #a7771f;color:#ffe29a;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900}
+.itemCard{background:#211934;border:1px solid #604d8e;border-radius:16px;padding:14px;margin-top:12px}
+.targetGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+@media(max-width:700px){.targetGrid{grid-template-columns:1fr}}
+.zone button{position:absolute;inset:0;opacity:0;width:100%}
+.coinBtns{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+@media(max-width:700px){.coinBtns{grid-template-columns:repeat(4,1fr)}}
+.coinBtn{background:#202a49;color:#fff;border:1px solid #3d4c7c;padding:11px;border-radius:12px;font-weight:850}
+.coinBtn.sel{background:#725cff;border-color:#9f91ff}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border-bottom:1px solid #2b3558;padding:10px 8px;text-align:left}
+.table th{color:#aeb8d8;font-size:13px}
+.rank1 td{background:rgba(255,209,102,.08)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#11182d;border:1px solid #3a4775;border-radius:14px;padding:12px 16px;z-index:20;box-shadow:0 10px 40px #0008}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;background:#202a49;border:1px solid #36436e;font-size:13px}
+.revealList{display:flex;flex-direction:column;gap:8px}
+.revealItem{display:flex;justify-content:space-between;gap:12px;background:#10172c;border:1px solid #2d3960;border-radius:12px;padding:10px 12px}
+.dup{text-decoration:line-through;color:#7f89aa}
+.win{color:var(--good);font-weight:900}
+.note{font-size:12px;color:#8e99bb}
+hr{border:0;border-top:1px solid #2b3558;margin:16px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="logo">TRIG <b>BET</b></div>
+    <div class="row"><span id="roomBadge" class="badge">방 미접속</span><span id="roleBadge" class="badge">대기</span></div>
+  </div>
+
+  <section id="setup" class="card">
+    <h1>삼각비 눈치 배팅</h1>
+    <p class="muted">30초 동안 문제를 풀어 코인을 벌고, A~E 중 한 구역에만 몰빵 배팅하세요. 같은 배팅 수는 서로 무효!</p>
+    <div class="grid g2">
+      <div class="stat">
+        <h2>관리자</h2>
+        <p class="muted">버튼을 누르면 자동으로 숫자 4자리 방 코드가 생성됩니다.</p>
+        <button id="createBtn" class="btn primary" style="width:100%">4자리 방 만들기</button>
+      </div>
+      <div class="stat">
+        <h2>참가자</h2>
+        <input id="joinRoom" class="input" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="숫자 4자리 방 코드">
+        <div style="height:8px"></div>
+        <input id="nickname" class="input" maxlength="10" placeholder="닉네임">
+        <div style="height:8px"></div>
+        <button id="joinBtn" class="btn primary" style="width:100%">게임 참가</button>
+      </div>
+    </div>
+    <hr>
+    <p class="note">※ Firestore 실시간 멀티플레이 버전입니다. 방장은 자동 생성된 숫자 4자리 코드를 학생들에게 알려주면 됩니다.</p>
+  </section>
+
+  <section id="adminLobby" class="card hidden">
+    <div class="row space">
+      <div>
+        <h2>관리자 대기실</h2>
+        <div class="muted">참가자 최대 16명</div>
+      </div>
+      <div class="row">
+        <button id="destroyRoomBtn" class="btn bad">방 폭파하기</button>
+        <button id="startGameBtn" class="btn good">게임 시작</button>
+      </div>
+    </div>
+    <div class="stat center" style="margin-top:14px">
+      <div class="muted">학생 참가 방 코드</div>
+      <div id="adminRoomCode" class="big" style="font-size:54px;letter-spacing:10px;color:var(--gold)">----</div>
+    </div>
+    <div id="playerList" class="grid g2" style="margin-top:14px"></div>
+  </section>
+
+  <section id="playerLobby" class="card hidden center">
+    <h2>입장 완료</h2>
+    <div class="muted">방 코드 <b id="playerRoomCode">----</b></div>
+    <div class="big" id="myNick" style="margin-top:8px">-</div>
+    <p class="muted">관리자가 게임을 시작할 때까지 기다려 주세요.</p>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="grid g2">
+      <div class="card problemBox">
+        <div class="row space">
+          <span class="pill"><b id="roundLabel">1</b> / 10 ROUND</span>
+          <span class="pill">보유 코인 🪙 <b id="coins">0</b></span>
+        </div>
+        <div class="center" style="margin-top:12px">
+          <div id="timer" class="timer">30</div>
+          <div id="problem" class="big" style="font-size:27px;margin:14px 0 18px">문제 준비 중</div>
+        </div>
+        <div id="answers" class="grid g2"></div>
+        <div id="lock" class="lock hidden">오답! <span id="lockSec">3</span>초</div>
+      </div>
+
+      <div class="card">
+        <h2>이번 라운드</h2>
+        <div class="grid g2">
+          <div class="stat"><div class="muted">정답</div><div class="n" id="correctCount">0</div></div>
+          <div class="stat"><div class="muted">누적 점수</div><div class="n" id="myScore">0</div></div>
+        </div>
+        <p class="muted" style="margin-top:14px">각 라운드의 처음 5개 정답까지는 단순 삼각비 문제만 나오며, 5개를 맞힌 뒤부터는 합·곱 문제만 나옵니다. 오답 시 3초간 문제 풀이가 잠깁니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="bet" class="card hidden">
+    <div class="row space">
+      <div><h2>배팅하기</h2><div class="muted">한 구역에만 배팅할 수 있습니다.</div></div>
+      <span class="pill">사용 가능 🪙 <b id="betCoins">0</b></span>
+    </div>
+    <div id="zonesPlayer" class="zones" style="margin-top:16px"></div>
+    <div id="specialItemInfo" class="itemCard hidden"></div>
+    <h3 style="margin-top:18px">배팅 코인</h3>
+    <div id="coinBtns" class="coinBtns"></div>
+    <p class="note" style="margin-top:10px">남긴 코인은 라운드 종료와 함께 사라지며 다음 라운드로 이월되지 않습니다.</p>
+    <button id="submitBet" class="btn primary" style="width:100%;margin-top:12px" disabled>배팅 완료</button>
+    <div id="betWait" class="hidden center" style="padding:18px"><div class="big">배팅 완료</div><p class="muted">다른 참가자를 기다리는 중...</p></div>
+  </section>
+
+  <section id="adminRound" class="card hidden">
+    <div class="row space"><div><h2>관리자 진행</h2><div class="muted"><span id="adminRoundNo">1</span> / 10 ROUND</div></div><span class="pill">배팅 완료 <b id="betDone">0</b> / <b id="betTotal">0</b></span></div>
+    <div id="adminStatus" class="muted" style="margin:14px 0">문제 풀이 진행 중...</div>
+    <div class="row">
+      <button id="showResultsBtn" class="btn primary" disabled>결과 보기</button>
+      <button id="forceBetEndBtn" class="btn gold hidden">배팅 강제 종료 / 결과로 넘기기</button>
+    </div>
+    <div id="zonesAdmin" class="zones hidden" style="margin-top:16px"></div>
+    <div id="revealBox" style="margin-top:14px"></div>
+    <button id="jackpotRevealBtn" class="btn gold hidden" style="width:100%;margin-top:15px">🎰 잭팟 결과 공개</button>
+    <div id="jackpotResultBox" class="itemCard hidden center" style="margin-top:12px"></div>
+    <button id="finishRoundBtn" class="btn good hidden" style="width:100%;margin-top:15px">현재 순위 보기</button>
+  </section>
+
+  <section id="itemAction" class="card hidden">
+    <div class="center">
+      <div class="pill" id="itemActionRound">SPECIAL ITEM</div>
+      <h2 id="itemActionTitle" style="margin-top:14px">특수아이템 사용</h2>
+      <p id="itemActionDesc" class="muted"></p>
+    </div>
+    <div id="itemActionBody" class="targetGrid" style="margin-top:14px"></div>
+    <div id="itemActionWait" class="center muted hidden" style="padding:20px">아이템 보유자의 선택을 기다리는 중...</div>
+  </section>
+
+  <section id="jackpotPlayer" class="card hidden center">
+    <div class="pill">10 ROUND · JACKPOT</div>
+    <h2 style="margin-top:14px">잭팟 결과</h2>
+    <div id="jackpotPlayerResult" class="big" style="margin-top:14px"></div>
+    <p id="jackpotPlayerSub" class="muted"></p>
+  </section>
+
+  <section id="ranking" class="card hidden">
+    <div class="row space"><div><h2 id="rankTitle">현재 순위</h2><div class="muted" id="rankSub"></div></div><button id="nextRoundBtn" class="btn primary hidden">다음 라운드</button></div>
+    <table class="table" style="margin-top:12px"><thead><tr><th>순위</th><th>닉네임</th><th>이번 라운드</th><th>누적 점수</th></tr></thead><tbody id="rankBody"></tbody></table>
+  </section>
+</div>
+<div id="toast" class="toast hidden"></div>
+
+<script type="module">
+/* ===========================
+   1) Firebase 설정값 입력
+   =========================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBJH4uX1bj0PaEUtMDuYSyJ2GDt6f7Gz6o",
+  authDomain: "game-bb5b0.firebaseapp.com",
+  projectId: "game-bb5b0",
+  storageBucket: "game-bb5b0.firebasestorage.app",
+  messagingSenderId: "47848761419",
+  appId: "1:47848761419:web:62f872cc443d49411a85ce",
+  measurementId: "G-SJBS9DDEPL"
+};
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp,
+  collection, getDocs, deleteField, deleteDoc, runTransaction
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const configured = !Object.values(firebaseConfig).some(v => String(v).includes("YOUR_"));
+let db = null;
+if(configured){
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+}
+
+const $=id=>document.getElementById(id);
+const els = {
+  setup:$("setup"), adminLobby:$("adminLobby"), playerLobby:$("playerLobby"),
+  play:$("play"), bet:$("bet"), adminRound:$("adminRound"), itemAction:$("itemAction"), jackpotPlayer:$("jackpotPlayer"), ranking:$("ranking")
+};
+let role=null, room=null, pid=null, nick=null;
+let gameState=null, myData=null, localTimer=null, locked=false;
+let selectedZone=null, selectedCoins=0;
+let opened = new Set();
+
+function showOnly(...names){
+  Object.entries(els).forEach(([k,v])=>v.classList.toggle("hidden",!names.includes(k)));
+}
+function toast(t){$("toast").textContent=t;$("toast").classList.remove("hidden");setTimeout(()=>$("toast").classList.add("hidden"),1800)}
+function needFirebase(){ if(!configured){ toast("먼저 firebaseConfig를 입력해 주세요."); return false } return true }
+function cleanRoom(v){return String(v||"").replace(/\D/g,"").slice(0,4)}
+function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4)}
+function normalizeNick(v){return v.trim().replace(/\s+/g," ").toLocaleLowerCase("ko-KR")}
+function nickKey(v){return encodeURIComponent(normalizeNick(v))}
+function roomDoc(){ return doc(db,"rooms",room) }
+function playerDoc(id){ return doc(db,"rooms",room,"players",id) }
+function nickLockDoc(key){ return doc(db,"rooms",room,"nicknameLocks",key) }
+function safeKeyPath(path){
+  return path.split("/").filter(Boolean);
+}
+async function fsUpdateRoom(obj){
+  const roomUpdates = {};
+  const playerUpdates = {};
+  for(const [k,v] of Object.entries(obj)){
+    if(k.startsWith("players/")){
+      const parts=safeKeyPath(k);
+      const id=parts[1], field=parts.slice(2).join(".");
+      if(!playerUpdates[id]) playerUpdates[id]={};
+      playerUpdates[id][field]=v;
+    }else{
+      roomUpdates[k.replaceAll("/",".")]=v;
+    }
+  }
+  const jobs=[];
+  if(Object.keys(roomUpdates).length) jobs.push(updateDoc(roomDoc(),roomUpdates));
+  for(const [id,data] of Object.entries(playerUpdates)){
+    jobs.push(updateDoc(playerDoc(id),data));
+  }
+  await Promise.all(jobs);
+}
+async function loadRoom(){
+  const rs=await getDoc(roomDoc());
+  if(!rs.exists()) return null;
+  const ps=await getDocs(collection(db,"rooms",room,"players"));
+  const players={};
+  ps.forEach(d=>players[d.id]=d.data());
+  return {id:rs.id,...rs.data(),players};
+}
+function subscribeRoom(cb){
+  let roomState=null, playerState={};
+  const emit=()=>cb(roomState?{...roomState,players:{...playerState}}:null);
+  const unsubRoom=onSnapshot(roomDoc(),snap=>{
+    roomState=snap.exists()?snap.data():null; emit();
+  });
+  const unsubPlayers=onSnapshot(collection(db,"rooms",room,"players"),snap=>{
+    playerState={}; snap.forEach(d=>playerState[d.id]=d.data()); emit();
+  });
+  return ()=>{unsubRoom();unsubPlayers();}
+}
+
+$("createBtn").onclick=async()=>{
+  if(!needFirebase()) return;
+  const btn=$("createBtn");
+  if(btn.disabled)return;
+  btn.disabled=true;
+  btn.textContent="방 만드는 중...";
+  role="admin";
+  try{
+    let created=false;
+    for(let i=0;i<30&&!created;i++){
+      room=String(Math.floor(1000+Math.random()*9000));
+      const rd=roomDoc();
+      try{
+        await runTransaction(db,async(tx)=>{
+          const snap=await tx.get(rd);
+          if(snap.exists()) throw new Error("ROOM_EXISTS");
+          tx.set(rd,{
+            phase:"lobby",round:0,createdAt:serverTimestamp(),
+            zones:{},revealed:{},playerCount:0
+          });
+        });
+        created=true;
+      }catch(e){
+        if(e.message!=="ROOM_EXISTS") throw e;
+      }
+    }
+    if(!created) throw new Error("ROOM_CREATE_FAILED");
+    enter();
+  }catch(e){
+    console.error(e);
+    toast("방 만들기에 실패했습니다.");
+    role=null; room=null;
+  }finally{
+    btn.disabled=false;
+    btn.textContent="4자리 방 만들기";
+  }
+};
+
+$("joinBtn").onclick=async()=>{
+  if(!needFirebase()) return;
+  const btn=$("joinBtn");
+  if(btn.disabled)return;
+  room=cleanRoom($("joinRoom").value);
+  nick=$("nickname").value.trim().replace(/\s+/g," ");
+  if(room.length!==4||!nick){toast("숫자 4자리 방 코드와 닉네임을 입력해 주세요.");return}
+  btn.disabled=true;
+  btn.textContent="참가 확인 중...";
+  const newPid=uid();
+  const key=nickKey(nick);
+  try{
+    await runTransaction(db,async(tx)=>{
+      const rd=roomDoc();
+      const lock=nickLockDoc(key);
+      const roomSnap=await tx.get(rd);
+      const lockSnap=await tx.get(lock);
+      if(!roomSnap.exists()) throw new Error("NO_ROOM");
+      const r=roomSnap.data();
+      if(r.phase!=="lobby") throw new Error("STARTED");
+      if((r.playerCount||0)>=16) throw new Error("FULL");
+      if(lockSnap.exists()) throw new Error("DUP_NICK");
+      tx.set(playerDoc(newPid),{
+        nickname:nick,nickKey:key,score:0,roundScore:0,coins:0,correct:0,bet:null,joinedAt:serverTimestamp()
+      });
+      tx.set(lock,{playerId:newPid,nickname:nick,createdAt:serverTimestamp()});
+      tx.update(rd,{playerCount:(r.playerCount||0)+1});
+    });
+    pid=newPid;
+    role="player";
+    enter();
+  }catch(e){
+    console.error(e);
+    if(e.message==="NO_ROOM") toast("존재하지 않는 방입니다.");
+    else if(e.message==="STARTED") toast("이미 게임이 시작된 방입니다.");
+    else if(e.message==="FULL") toast("참가자가 16명으로 가득 찼습니다.");
+    else if(e.message==="DUP_NICK") toast("이미 사용 중인 닉네임입니다.");
+    else toast("참가에 실패했습니다. 다시 시도해 주세요.");
+  }finally{
+    if(role!=="player"){
+      btn.disabled=false;
+      btn.textContent="게임 참가";
+    }
+  }
+};
+
+let joinedOnce=false;
+function enter(){
+  $("roomBadge").textContent=`ROOM ${room}`;
+  $("roleBadge").textContent=role==="admin"?"관리자":nick;
+  if(role==="admin") $("adminRoomCode").textContent=room;
+  subscribeRoom(data=>{
+    if(!data){
+      if(role==="player" && joinedOnce){
+        alert("방장이 방을 폭파했습니다.");
+        location.reload();
+      }else if(role==="admin"){
+        location.reload();
+      }
+      return;
+    }
+    if(role==="player" && pid){
+      const exists=!!data.players?.[pid];
+      if(joinedOnce && !exists){
+        alert("관리자에 의해 방에서 퇴장되었습니다.");
+        location.reload();
+        return;
+      }
+      if(exists) joinedOnce=true;
+    }
+    gameState=data;
+    renderState();
+  });
+  if(role==="admin") showOnly("adminLobby");
+  else { $("myNick").textContent=nick; $("playerRoomCode").textContent=room; showOnly("playerLobby"); }
+}
+
+function playersArr(){
+  return Object.entries(gameState?.players||{}).map(([id,p])=>({id,...p}));
+}
+function renderLobby(){
+  if(role==="admin"){
+    showOnly("adminLobby");
+    $("adminRoomCode").textContent=room;
+    const arr=playersArr();
+    $("playerList").innerHTML=arr.length?arr.map((p,i)=>`
+      <div class="stat">
+        <div class="row space">
+          <div><b>${i+1}. ${esc(p.nickname)}</b><div class="muted">입장 완료</div></div>
+          <button class="btn bad kickBtn" data-id="${p.id}" data-name="${esc(p.nickname)}">강퇴</button>
+        </div>
+      </div>`).join(""):`<div class="muted">아직 참가자가 없습니다.</div>`;
+    [...document.querySelectorAll(".kickBtn")].forEach(b=>b.onclick=()=>kickPlayer(b.dataset.id,b.dataset.name));
+    $("startGameBtn").disabled=arr.length<2;
+  } else showOnly("playerLobby");
+}
+
+async function kickPlayer(id,name){
+  if(role!=="admin")return;
+  if(!confirm(`${name} 님을 방에서 강퇴할까요?`))return;
+  try{
+    await runTransaction(db,async(tx)=>{
+      const rd=roomDoc();
+      const pd=playerDoc(id);
+      const rs=await tx.get(rd);
+      const ps=await tx.get(pd);
+      if(!ps.exists())return;
+      const pdata=ps.data();
+      tx.delete(pd);
+      if(pdata.nickKey) tx.delete(nickLockDoc(pdata.nickKey));
+      if(rs.exists()){
+        const count=Math.max(0,(rs.data().playerCount||1)-1);
+        tx.update(rd,{playerCount:count});
+      }
+    });
+    toast(`${name} 님을 강퇴했습니다.`);
+  }catch(e){
+    console.error(e);
+    toast("강퇴 처리에 실패했습니다.");
+  }
+}
+
+
+$("destroyRoomBtn").onclick=async()=>{
+  if(role!=="admin" || !room)return;
+  const ok=confirm(`방 ${room}을 정말 폭파할까요?\n참가자 전원이 퇴장되고 방 데이터가 삭제됩니다.`);
+  if(!ok)return;
+
+  const btn=$("destroyRoomBtn");
+  btn.disabled=true;
+  btn.textContent="폭파 중...";
+
+  try{
+    const playersSnap=await getDocs(collection(db,"rooms",room,"players"));
+    const locksSnap=await getDocs(collection(db,"rooms",room,"nicknameLocks"));
+
+    const jobs=[];
+    playersSnap.forEach(d=>jobs.push(deleteDoc(d.ref)));
+    locksSnap.forEach(d=>jobs.push(deleteDoc(d.ref)));
+    await Promise.all(jobs);
+
+    await deleteDoc(roomDoc());
+    alert("방이 폭파되었습니다.");
+    location.reload();
+  }catch(e){
+    console.error(e);
+    toast("방 폭파에 실패했습니다.");
+    btn.disabled=false;
+    btn.textContent="방 폭파하기";
+  }
+};
+
+$("startGameBtn").onclick=async()=>{
+  if(playersArr().length<2)return;
+  await startRound(1);
+};
+async function startRound(roundNo){
+  opened.clear();
+  adminRevealRenderedRound=null;
+  const zones={A:rpoint(),B:rpoint(),C:rpoint(),D:rpoint(),E:rpoint()};
+  const specialItem=makeSpecialItem(roundNo);
+  const updates={
+    phase:"quiz",round:roundNo,zones,revealed:{},specialItem,
+    itemPending:null,jackpotResult:null,lastItemResult:null,quizEndsAt:Date.now()+30000
+  };
+  for(const p of playersArr()){
+    updates[`players/${p.id}/coins`]=0;
+    updates[`players/${p.id}/correct`]=0;
+    updates[`players/${p.id}/roundScore`]=0;
+    updates[`players/${p.id}/bet`]=null;
+  }
+  await fsUpdateRoom(updates);
+}
+function rpoint(){return 1+Math.floor(Math.random()*5)}
+function randomZone(){return ["A","B","C","D","E"][Math.floor(Math.random()*5)]}
+function makeSpecialItem(roundNo){
+  const zone=randomZone();
+  if(roundNo===8) return {zone,type:"scoreSwap",label:"점수 교환권",desc:"8라운드 결과 공개 직후 다른 사람과 누적 점수를 교환"};
+  if(roundNo===9) return {zone,type:"halve",label:"점수 절반",desc:"다른 한 명의 누적 점수를 1/2로"};
+  if(roundNo===10) return {zone,type:"jackpot",label:"잭팟",desc:"50% 확률로 10점 획득"};
+  if(Math.random()>=0.5) return null;
+  const pool=[
+    {type:"attack",label:"점수 공격",desc:"다른 한 명의 점수 -2~-5"},
+    {type:"double",label:"코인 2배",desc:"다음 라운드 정답 코인 2배"},
+    {type:"priority",label:"우선입찰권",desc:"다음 라운드 중복 입찰에서도 내 입찰은 유효"}
+  ];
+  return {zone,...pool[Math.floor(Math.random()*pool.length)]};
+}
+
+function renderState(){
+  if(!gameState)return;
+  if(role==="player") myData=gameState.players?.[pid]||null;
+  if(gameState.phase==="lobby"){renderLobby();return}
+  if(gameState.phase==="quiz"){
+    if(role==="admin") renderAdminRound("quiz");
+    else renderQuiz();
+  } else if(gameState.phase==="bet"){
+    if(role==="admin") renderAdminRound("bet");
+    else renderBet();
+  } else if(gameState.phase==="reveal"){
+    if(role==="admin") renderAdminReveal();
+    else renderPlayerReveal();
+  } else if(gameState.phase==="scoreSwap"){
+    renderItemAction("scoreSwap");
+  } else if(gameState.phase==="itemAction"){
+    renderItemAction(gameState.itemPending?.type);
+  } else if(gameState.phase==="jackpotReveal"){
+    if(role==="admin") renderAdminJackpot();
+    else renderPlayerJackpot();
+  } else if(gameState.phase==="ranking"){
+    renderRanking(false);
+  } else if(gameState.phase==="final"){
+    renderRanking(true);
+  }
+}
+
+let currentQ=null;
+function trigVal(fn,deg){
+  const vals={
+    sin:{0:"0",30:"1/2",45:"√2/2",60:"√3/2",90:"1"},
+    cos:{0:"1",30:"√3/2",45:"√2/2",60:"1/2",90:"0"},
+    tan:{0:"0",30:"√3/3",45:"1",60:"√3"}
+  };
+  return vals[fn][deg];
+}
+const simplePool=[];
+["sin","cos","tan"].forEach(fn=>{
+  [0,30,45,60,90].forEach(d=>{
+    if(fn==="tan"&&d===90)return;
+    simplePool.push({fn,d,val:trigVal(fn,d)})
+  })
+});
+const numeric={"0":0,"1/2":.5,"√2/2":Math.SQRT1_2,"√3/2":Math.sqrt(3)/2,"1":1,"√3/3":Math.sqrt(3)/3,"√3":Math.sqrt(3)};
+function prettyNumber(x){
+  const candidates=["0","1/2","√2/2","√3/2","1","√3/3","√3","3/2","2","√3/4","√2/4","√6/4","(√3+1)/2","(√3+3)/6"];
+  const known={
+    "3/2":1.5,"2":2,"√3/4":Math.sqrt(3)/4,"√2/4":Math.sqrt(2)/4,"√6/4":Math.sqrt(6)/4,
+    "(√3+1)/2":(Math.sqrt(3)+1)/2,"(√3+3)/6":(Math.sqrt(3)+3)/6
+  };
+  for(const c of candidates){
+    const v=numeric[c]??known[c];
+    if(Math.abs(v-x)<1e-8)return c;
+  }
+  return String(Math.round(x*1000)/1000);
+}
+function newQuestion(){
+  // 각 라운드에서 처음 5개 정답까지는 반드시 단순 삼각비 문제.
+  // 5개를 맞힌 뒤(6번째 문제부터)는 합·곱 문제만 출제.
+  const hard=(myData?.correct||0)>=5;
+  if(!hard){
+    const q=simplePool[Math.floor(Math.random()*simplePool.length)];
+    currentQ={text:`${q.fn} ${q.d}°의 값은?`,answer:q.val};
+  }else{
+    const a=simplePool[Math.floor(Math.random()*simplePool.length)];
+    const b=simplePool[Math.floor(Math.random()*simplePool.length)];
+    const op=Math.random()<.5?"+":"×";
+    const x=numeric[a.val], y=numeric[b.val];
+    currentQ={text:`${a.fn} ${a.d}° ${op} ${b.fn} ${b.d}° = ?`,answer:prettyNumber(op==="+"?x+y:x*y)};
+  }
+  const base=["0","1/2","√2/2","√3/2","1","√3/3","√3","3/2","2","√3/4","√2/4","√6/4","(√3+1)/2","(√3+3)/6"];
+  const opts=[currentQ.answer];
+  while(opts.length<4){
+    const x=base[Math.floor(Math.random()*base.length)];
+    if(!opts.includes(x))opts.push(x)
+  }
+  opts.sort(()=>Math.random()-.5);
+  currentQ.opts=opts;
+  drawQuestion();
+}
+function drawQuestion(){
+  $("problem").textContent=currentQ.text;
+  $("answers").innerHTML=currentQ.opts.map(o=>`<button class="choice" data-v="${o}">${o}</button>`).join("");
+  [...$("answers").children].forEach(b=>b.onclick=()=>answer(b.dataset.v,b));
+}
+async function answer(v,b){
+  if(locked||gameState.phase!=="quiz")return;
+  if(v===currentQ.answer){
+    b.classList.add("correct");
+    const gain=(myData?.coinDoubleRound===gameState.round)?2:1;
+    await updateDoc(playerDoc(pid),{coins:(myData?.coins||0)+gain,correct:(myData?.correct||0)+1});
+    setTimeout(newQuestion,140);
+  }else{
+    b.classList.add("wrong"); locked=true;$("lock").classList.remove("hidden");
+    let s=3;$("lockSec").textContent=s;
+    const it=setInterval(()=>{s--;$("lockSec").textContent=s;if(s<=0){clearInterval(it);locked=false;$("lock").classList.add("hidden");newQuestion()}},1000);
+  }
+}
+function renderQuiz(){
+  showOnly("play");
+  $("roundLabel").textContent=gameState.round;
+  $("coins").textContent=myData?.coins||0;$("correctCount").textContent=myData?.correct||0;$("myScore").textContent=myData?.score||0;
+  if(myData?.coinDoubleRound===gameState.round) $("coins").textContent=(myData?.coins||0)+" (2배 적용 중)";
+  if(!currentQ)newQuestion();
+  clearInterval(localTimer);
+  tickQuiz();
+  localTimer=setInterval(tickQuiz,250);
+}
+async function tickQuiz(){
+  const left=Math.max(0,Math.ceil((gameState.quizEndsAt-Date.now())/1000));
+  $("timer").textContent=left;
+  if(left<=0){
+    clearInterval(localTimer);
+    if(role==="admin"&&gameState.phase==="quiz") await advanceAfterQuiz();
+  }
+}
+async function advanceAfterQuiz(){
+  await updateDoc(roomDoc(),{phase:"bet"});
+}
+function renderAdminRound(which){
+  showOnly("adminRound");
+  $("adminRoundNo").textContent=gameState.round;
+  const arr=playersArr();
+  const done=arr.filter(p=>p.bet?.done).length;
+  $("betDone").textContent=done;$("betTotal").textContent=arr.length;
+  const itemMsg=gameState.specialItem?` · 🎁 ${gameState.specialItem.zone}구역 ${gameState.specialItem.label}`:"";
+  $("adminStatus").textContent=(which==="quiz"?"30초 문제 풀이 진행 중...":`배팅 진행 중... (${done}/${arr.length})`)+itemMsg;
+  $("showResultsBtn").disabled=which!=="bet"||done!==arr.length;
+  $("forceBetEndBtn").classList.toggle("hidden", !(which==="bet" && done<arr.length));
+  $("zonesAdmin").classList.add("hidden");$("revealBox").innerHTML="";$("finishRoundBtn").classList.add("hidden");
+  if(which==="quiz"){
+    clearInterval(localTimer);
+    localTimer=setInterval(async()=>{
+      if(!gameState||gameState.phase!=="quiz")return;
+      if(Date.now()>=gameState.quizEndsAt){
+        clearInterval(localTimer);
+        await advanceAfterQuiz();
+      }
+    },300);
+  }
+}
+function zoneHTML(clickable=false){
+  return ["A","B","C","D","E"].map(z=>{
+    const p=gameState.zones?.[z];
+    const it=gameState.specialItem?.zone===z?gameState.specialItem:null;
+    return `<div class="zone" data-zone="${z}">
+      <div class="letter">${z}</div>
+      ${it
+        ? `<div class="points" style="font-size:18px;color:var(--purple)">특수카드</div><div class="itemBadge">🎁 ${esc(it.label)}</div>`
+        : `<div class="points">${p}점</div>`}
+      ${clickable?`<button aria-label="${z}선택"></button>`:""}
+    </div>`;
+  }).join("");
+}
+function renderBet(){
+  showOnly("bet");
+  const coins=myData?.coins||0;$("betCoins").textContent=coins;
+  $("zonesPlayer").innerHTML=zoneHTML(true);
+  const it=gameState.specialItem;
+  $("specialItemInfo").classList.toggle("hidden",!it);
+  if(it) $("specialItemInfo").innerHTML=`🎁 이번 라운드 특수아이템: <b>${esc(it.label)}</b><br><span class="muted">${esc(it.desc)}</span>`;
+  [...$("zonesPlayer").querySelectorAll(".zone")].forEach(z=>z.onclick=()=>{
+    selectedZone=z.dataset.zone;
+    [...$("zonesPlayer").querySelectorAll(".zone")].forEach(x=>x.classList.toggle("sel",x.dataset.zone===selectedZone));
+    validateBet();
+  });
+  $("coinBtns").innerHTML=Array.from({length:coins},(_,i)=>i+1).map(n=>`<button class="coinBtn" data-c="${n}">${n}</button>`).join("") || `<div class="muted">이번 라운드에 획득한 코인이 없습니다.</div>`;
+  [...$("coinBtns").querySelectorAll(".coinBtn")].forEach(b=>b.onclick=()=>{
+    selectedCoins=+b.dataset.c;
+    [...$("coinBtns").querySelectorAll(".coinBtn")].forEach(x=>x.classList.toggle("sel",+x.dataset.c===selectedCoins));
+    validateBet();
+  });
+  const done=myData?.bet?.done;
+  $("submitBet").classList.toggle("hidden",!!done);$("betWait").classList.toggle("hidden",!done);
+  if(coins===0 && !done){
+    $("submitBet").disabled=false;$("submitBet").textContent="0코인 - 자동 패스";
+  }else $("submitBet").textContent="배팅 완료";
+}
+function validateBet(){
+  $("submitBet").disabled = !((myData?.coins||0)===0 || (selectedZone&&selectedCoins>=1&&selectedCoins<=(myData?.coins||0)));
+}
+$("submitBet").onclick=async()=>{
+  const c=myData?.coins||0;
+  if(c===0) await updateDoc(playerDoc(pid),{bet:{done:true,zone:null,coins:0}});
+  else if(selectedZone&&selectedCoins) await updateDoc(playerDoc(pid),{bet:{done:true,zone:selectedZone,coins:selectedCoins}});
+  selectedZone=null;selectedCoins=0;
+};
+$("showResultsBtn").onclick=async()=>{
+  await updateDoc(roomDoc(),{phase:"reveal",revealed:{}});
+};
+
+$("forceBetEndBtn").onclick=async()=>{
+  if(role!=="admin" || gameState.phase!=="bet") return;
+  if(!confirm("아직 배팅하지 않은 참가자는 자동 패스 처리하고 결과 공개로 넘어갈까요?")) return;
+
+  const updates={};
+  const pending=playersArr().filter(p=>!p.bet?.done);
+  for(const p of pending){
+    updates[`players/${p.id}/bet`]={done:true,zone:null,coins:0,forced:true};
+  }
+  updates["phase"]="reveal";
+  updates["revealed"]={};
+
+  try{
+    await fsUpdateRoom(updates);
+    toast(`${pending.length}명 자동 패스 처리 후 결과 공개로 넘어갔습니다.`);
+  }catch(e){
+    console.error(e);
+    toast("강제 종료 처리에 실패했습니다.");
+  }
+};
+let adminRevealRenderedRound=null;
+function renderAdminReveal(){
+  showOnly("adminRound");
+  $("adminStatus").textContent="A~E 구역을 원하는 순서대로 눌러 공개하세요.";
+  $("showResultsBtn").disabled=true;
+  $("showResultsBtn").classList.remove("hidden");
+  $("forceBetEndBtn").classList.add("hidden");
+  $("jackpotRevealBtn").classList.add("hidden");
+  $("jackpotResultBox").classList.add("hidden");
+  $("zonesAdmin").classList.remove("hidden");
+
+  // 같은 라운드에서는 카드 DOM을 다시 만들지 않아 클릭할 때 위치가 움직이지 않음
+  if(adminRevealRenderedRound!==gameState.round || !$("zonesAdmin").children.length){
+    $("zonesAdmin").innerHTML=zoneHTML(true);
+    [...$("zonesAdmin").querySelectorAll(".zone")].forEach(z=>{
+      const zz=z.dataset.zone;
+      z.onclick=()=>revealZone(zz);
+    });
+    adminRevealRenderedRound=gameState.round;
+  }
+
+  [...$("zonesAdmin").querySelectorAll(".zone")].forEach(z=>{
+    const zz=z.dataset.zone;
+    z.classList.toggle("open",!!gameState.revealed?.[zz]);
+  });
+
+  renderRevealBox();
+  $("finishRoundBtn").classList.toggle("hidden",Object.keys(gameState.revealed||{}).length<5);
+}
+async function revealZone(z){
+  if(gameState.revealed?.[z])return;
+  const entrants=playersArr().filter(p=>p.bet?.zone===z);
+  const counts={};
+  entrants.forEach(p=>counts[p.bet.coins]=(counts[p.bet.coins]||0)+1);
+  const valid=entrants
+    .filter(p=>p.priorityBidRound===gameState.round || counts[p.bet.coins]===1)
+    .sort((a,b)=>b.bet.coins-a.bet.coins || ((b.priorityBidRound===gameState.round)?1:0)-((a.priorityBidRound===gameState.round)?1:0));
+
+  const winner=valid[0]||null;
+  const itemHere=gameState.specialItem?.zone===z ? gameState.specialItem : null;
+  const basePoint=itemHere ? 0 : (gameState.zones[z]||0);
+  const updates={};
+
+  updates[`revealed/${z}`]={
+    winnerId:winner?.id||null,
+    winnerName:winner?.nickname||null,
+    point:basePoint,
+    at:Date.now(),
+    item:itemHere?itemHere.label:null,
+    itemWinner:winner?.nickname||null,
+    specialOnly:!!itemHere
+  };
+
+  if(winner){
+    // 특수카드 구역은 기본 점수를 주지 않음
+    if(basePoint>0){
+      updates[`players/${winner.id}/roundScore`]=(winner.roundScore||0)+basePoint;
+      updates[`players/${winner.id}/score`]=(winner.score||0)+basePoint;
+    }
+
+    if(itemHere){
+      if(itemHere.type==="double"){
+        updates[`players/${winner.id}/coinDoubleRound`]=gameState.round+1;
+      }else if(itemHere.type==="priority"){
+        updates[`players/${winner.id}/priorityBidRound`]=gameState.round+1;
+      }else if(itemHere.type==="scoreSwap"){
+        updates[`itemPending`]={
+          type:"scoreSwap",
+          holderId:winner.id,
+          holderName:winner.nickname,
+          sourceZone:z,
+          round:gameState.round
+        };
+      }else if(itemHere.type==="jackpot"){
+        updates[`itemPending`]={
+          type:"jackpot",
+          holderId:winner.id,
+          holderName:winner.nickname,
+          sourceZone:z,
+          round:gameState.round
+        };
+      }else if(itemHere.type==="attack" || itemHere.type==="halve"){
+        updates[`itemPending`]={
+          type:itemHere.type,
+          holderId:winner.id,
+          holderName:winner.nickname,
+          sourceZone:z,
+          round:gameState.round
+        };
+      }
+    }
+  }
+
+  await fsUpdateRoom(updates);
+}
+function renderRevealBox(){
+  const rev=gameState.revealed||{};
+  $("revealBox").innerHTML=["A","B","C","D","E"].filter(z=>rev[z]).map(z=>{
+    const entrants=playersArr().filter(p=>p.bet?.zone===z).sort((a,b)=>b.bet.coins-a.bet.coins);
+    const counts={}; entrants.forEach(p=>counts[p.bet.coins]=(counts[p.bet.coins]||0)+1);
+    const winnerId=rev[z].winnerId;
+    const header=rev[z].specialOnly
+      ? `${z}구역 · 🎁 특수카드`
+      : `${z}구역 · ${gameState.zones[z]}점`;
+    const itemText=rev[z].item
+      ? `<div class="itemCard">🎁 <b>${esc(rev[z].item)}</b>${rev[z].itemWinner?` → ${esc(rev[z].itemWinner)} 획득`:""}</div>`
+      : "";
+
+    return `<div class="card" style="margin-top:10px;padding:14px">
+      <div class="row space">
+        <b>${header}</b>
+        <span class="${winnerId?'win':'muted'}">${winnerId?esc(rev[z].winnerName)+" 승리":"당첨자 없음"}</span>
+      </div>
+      <div class="revealList" style="margin-top:10px">
+        ${entrants.length?entrants.map(p=>{
+          const priority=p.priorityBidRound===gameState.round;
+          const invalid=!priority && counts[p.bet.coins]>1;
+          return `<div class="revealItem ${invalid?'dup':''}">
+            <span>${esc(p.nickname)} ${priority?'⭐우선':''}</span>
+            <b>🪙 ${p.bet.coins}</b>
+          </div>`;
+        }).join(""):`<div class="muted">배팅 없음</div>`}
+      </div>
+      ${itemText}
+    </div>`;
+  }).join("");
+}
+function renderPlayerReveal(){
+  showOnly("ranking");
+  $("rankTitle").textContent="결과 공개 중";
+  $("rankSub").textContent="관리자가 구역을 하나씩 공개하고 있습니다.";
+  $("nextRoundBtn").classList.add("hidden");
+  const rev=gameState.revealed||{};
+  const body=[];
+  ["A","B","C","D","E"].forEach(z=>{
+    if(!rev[z])return;
+    const result=rev[z].specialOnly
+      ? (rev[z].item?`🎁 ${esc(rev[z].item)}`:"특수카드")
+      : `${gameState.zones[z]}점`;
+    const gained=rev[z].specialOnly?"특수능력":(rev[z].winnerName?`+${rev[z].point}`:"0");
+    body.push(`<tr><td>${z}</td><td>${rev[z].winnerName?esc(rev[z].winnerName):"-"}</td><td>${gained}</td><td>${result}</td></tr>`);
+  });
+  $("rankBody").innerHTML=body.join("")||`<tr><td colspan="4" class="muted">아직 공개된 구역이 없습니다.</td></tr>`;
+}
+$("finishRoundBtn").onclick=async()=>{
+  if(gameState.phase==="jackpotReveal" && gameState.jackpotResult){
+    await updateDoc(roomDoc(),{phase:"ranking",itemPending:null});
+    return;
+  }
+  const pending=gameState.itemPending;
+  if(pending?.type==="scoreSwap"){
+    await updateDoc(roomDoc(),{phase:"scoreSwap"});
+  }else if(pending?.type==="jackpot"){
+    await updateDoc(roomDoc(),{phase:"jackpotReveal"});
+  }else if(pending && (pending.type==="attack" || pending.type==="halve")){
+    await updateDoc(roomDoc(),{phase:"itemAction"});
+  }else{
+    await updateDoc(roomDoc(),{phase:"ranking",itemPending:null});
+  }
+};
+function renderItemAction(type){
+  showOnly("itemAction");
+  const pending=gameState.itemPending;
+  if(!pending)return;
+  const holderId=pending.holderId;
+  const holder=gameState.players?.[holderId];
+  const isHolder=role==="player" && pid===holderId;
+
+  $("itemActionRound").textContent=type==="scoreSwap"?"8 ROUND · 즉시 사용":"SPECIAL ITEM";
+  $("itemActionTitle").textContent=
+    type==="scoreSwap"?"점수 교환권":
+    type==="halve"?"점수 절반":
+    "점수 공격";
+  $("itemActionDesc").textContent=
+    type==="scoreSwap"?"다른 참가자 한 명을 선택하면 현재 누적 점수를 서로 통째로 교환합니다.":
+    type==="halve"?"다른 참가자 한 명의 누적 점수를 절반으로 만듭니다.":
+    "다른 참가자 한 명의 누적 점수를 2~5점 감소시킵니다.";
+
+  const targets=playersArr().filter(p=>p.id!==holderId);
+  $("itemActionBody").classList.toggle("hidden",!isHolder);
+  $("itemActionWait").classList.toggle("hidden",isHolder);
+  if(isHolder){
+    $("itemActionBody").innerHTML=targets.map(p=>{
+      const info=`현재 ${p.score||0}점`;
+      return `<button class="choice itemTarget" data-id="${p.id}">${esc(p.nickname)}<br><span class="muted">${info}</span></button>`;
+    }).join("");
+    [...document.querySelectorAll(".itemTarget")].forEach(b=>b.onclick=()=>useItemOn(b.dataset.id,type));
+  }else{
+    $("itemActionWait").textContent=`${pending.holderName||"아이템 보유자"}의 선택을 기다리는 중...`;
+  }
+}
+
+async function useItemOn(targetId,type){
+  const pending=gameState.itemPending;
+  if(!pending || pending.holderId!==pid)return;
+  const holder=gameState.players?.[pid];
+  const target=gameState.players?.[targetId];
+  if(!holder||!target)return;
+
+  try{
+    if(type==="scoreSwap"){
+      await runTransaction(db,async tx=>{
+        const hp=playerDoc(pid), tp=playerDoc(targetId), rd=roomDoc();
+        const hs=await tx.get(hp);
+        const ts=await tx.get(tp);
+        if(!hs.exists()||!ts.exists())throw new Error("PLAYER_MISSING");
+        const hScore=hs.data().score||0;
+        const tScore=ts.data().score||0;
+        tx.update(hp,{score:tScore});
+        tx.update(tp,{score:hScore});
+        tx.update(rd,{
+          phase:"ranking",
+          itemPending:null,
+          lastItemResult:`${hs.data().nickname} ↔ ${ts.data().nickname} 점수 교환`
+        });
+      });
+    }else if(type==="halve"){
+      await updateDoc(playerDoc(targetId),{score:(target.score||0)/2});
+      await updateDoc(roomDoc(),{phase:"ranking",itemPending:null});
+    }else if(type==="attack"){
+      const damage=2+Math.floor(Math.random()*4);
+      await updateDoc(playerDoc(targetId),{score:Math.max(0,(target.score||0)-damage)});
+      await updateDoc(roomDoc(),{phase:"ranking",itemPending:null,lastItemResult:`${target.nickname} -${damage}점`});
+    }
+  }catch(e){
+    console.error(e);
+    toast("아이템 사용에 실패했습니다.");
+  }
+}
+
+function renderAdminJackpot(){
+  showOnly("adminRound");
+  $("adminStatus").textContent="10라운드 잭팟 결과를 공개하세요.";
+  $("showResultsBtn").classList.add("hidden");
+  $("zonesAdmin").classList.add("hidden");
+  $("finishRoundBtn").classList.add("hidden");
+  $("jackpotRevealBtn").classList.remove("hidden");
+  $("jackpotResultBox").classList.add("hidden");
+  if(gameState.jackpotResult){
+    $("jackpotRevealBtn").classList.add("hidden");
+    $("jackpotResultBox").classList.remove("hidden");
+    const r=gameState.jackpotResult;
+    $("jackpotResultBox").innerHTML=r.success
+      ? `🎉 <b>${esc(r.holderName)}</b> 잭팟 성공!<br><span class="big">+10점</span>`
+      : `💥 <b>${esc(r.holderName)}</b> 잭팟 실패!<br><span class="big">꽝</span>`;
+    $("finishRoundBtn").classList.remove("hidden");
+  }
+}
+
+$("jackpotRevealBtn").onclick=async()=>{
+  if(role!=="admin")return;
+  const pending=gameState.itemPending;
+  if(!pending || pending.type!=="jackpot")return;
+  const success=Math.random()<0.5;
+  const updates={
+    jackpotResult:{
+      holderId:pending.holderId,
+      holderName:pending.holderName,
+      success,
+      points:success?10:0,
+      revealedAt:Date.now()
+    }
+  };
+  if(success){
+    const holder=gameState.players?.[pending.holderId];
+    updates[`players/${pending.holderId}/score`]=(holder?.score||0)+10;
+  }
+  await fsUpdateRoom(updates);
+};
+
+function renderPlayerJackpot(){
+  showOnly("jackpotPlayer");
+  const r=gameState.jackpotResult;
+  if(!r){
+    $("jackpotPlayerResult").textContent="방장의 공개를 기다리는 중...";
+    $("jackpotPlayerSub").textContent="잭팟은 50% 확률로 10점을 획득합니다.";
+    return;
+  }
+  if(r.success){
+    $("jackpotPlayerResult").textContent=`🎉 ${r.holderName} +10점!`;
+    $("jackpotPlayerSub").textContent="잭팟 성공!";
+  }else{
+    $("jackpotPlayerResult").textContent=`💥 ${r.holderName} 꽝!`;
+    $("jackpotPlayerSub").textContent="이번 잭팟은 실패했습니다.";
+  }
+}
+
+function sortedRanks(){
+  return playersArr().sort((a,b)=>b.score-a.score||a.nickname.localeCompare(b.nickname,"ko"));
+}
+function renderRanking(final){
+  showOnly("ranking");
+  $("rankTitle").textContent=final?"최종 결과":"현재 순위";
+  $("rankSub").textContent=(final?"10라운드 종료!":`${gameState.round}라운드 종료`)+(gameState.lastItemResult?` · ${gameState.lastItemResult}`:"");
+  const arr=sortedRanks();
+  let lastScore=null,lastRank=0;
+  $("rankBody").innerHTML=arr.map((p,i)=>{
+    const rank=p.score===lastScore?lastRank:i+1; if(p.score!==lastScore){lastRank=i+1;lastScore=p.score}
+    return `<tr class="${rank===1?'rank1':''}"><td>${rank}</td><td>${esc(p.nickname)}</td><td>${p.roundScore?`+${p.roundScore}`:"0"}</td><td><b>${p.score}</b></td></tr>`
+  }).join("");
+  if(role==="admin"&&!final){
+    $("nextRoundBtn").classList.remove("hidden");
+    $("nextRoundBtn").textContent=gameState.round>=10?"최종 결과 발표":"다음 라운드";
+  }else $("nextRoundBtn").classList.add("hidden");
+}
+$("nextRoundBtn").onclick=async()=>{
+  if(gameState.round>=10) await updateDoc(roomDoc(),{phase:"final"});
+  else await startRound(gameState.round+1);
+};
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+</script>
+</body>
+</html>
